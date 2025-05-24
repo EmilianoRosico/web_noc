@@ -21,13 +21,13 @@ export default function AlertPanel() {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
   const alertsPerPage = 10
 
-  const { language, setLanguage } = useLanguage()
+  const { language } = useLanguage()
 
   const fetchAlerts = async () => {
     try {
       const res = await fetch('https://jsonplaceholder.typicode.com/posts')
       const data = await res.json()
-      const parsed = data.slice(0, 50).map((item: any, index: number) => ({
+      const parsed = data.slice(0, 50).map((item: { title: string }, index: number) => ({
         id: index + 1,
         severity: index % 3 === 0 ? 'critical' : index % 3 === 1 ? 'warning' : 'info',
         message: item.title,
@@ -83,7 +83,7 @@ export default function AlertPanel() {
           <select
             value={selectedSeverity}
             onChange={(e) => {
-              setSelectedSeverity(e.target.value as any)
+              setSelectedSeverity(e.target.value as 'all' | 'critical' | 'warning' | 'info')
               setCurrentPage(1)
             }}
             className="border border-gray-300 rounded px-2 py-1 text-sm"
@@ -92,15 +92,6 @@ export default function AlertPanel() {
             <option value="critical">{labels[language].critical}</option>
             <option value="warning">{labels[language].warning}</option>
             <option value="info">{labels[language].info}</option>
-          </select>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
-          >
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
           </select>
           <button
             onClick={fetchAlerts}

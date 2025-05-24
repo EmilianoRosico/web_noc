@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     } else {
       setIsVerified(true)
     }
-  }, [])
+  }, [router])
 
   if (!isVerified) {
     return null // ⛔️ evita renderizar el contenido protegido
