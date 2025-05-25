@@ -3,8 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const mockUsers = [
-  { id: 1, email: 'admin@noc.com', password: 'admin123', role: 'admin' },
-  { id: 2, email: 'user@noc.com', password: 'user123', role: 'user' },
+  { id: 1, email: 'admin@noc.com', username: 'admin', password: 'admin123', role: 'admin' },
+  { id: 2, email: 'user@noc.com', username: 'operator1', password: 'user123', role: 'user' },
 ]
 
 export async function POST(req: NextRequest) {

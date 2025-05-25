@@ -7,6 +7,7 @@ import { parseCookies, setCookie, destroyCookie } from 'nookies'
 interface User {
   id: number
   email: string
+  username: string
   role: 'admin' | 'user'
 }
 

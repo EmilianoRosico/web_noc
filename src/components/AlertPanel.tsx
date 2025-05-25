@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import { useAuth } from '@/context/AuthContext'
 import AlertDetailModal from '@/components/AlertDetailModal'
+import AlertCard from './AlertCard'
 import { useLanguage } from '@/context/LanguageContext'
 import { labels } from '@/locales'
 
@@ -10,6 +12,7 @@ interface Alert {
   severity: 'critical' | 'warning' | 'info'
   message: string
   timestamp: string
+  assignedTo?: string
 }
 
 export default function AlertPanel() {
@@ -19,21 +22,19 @@ export default function AlertPanel() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
+  const [filterByOperator, setFilterByOperator] = useState<'all' | 'mine'>('all')
   const alertsPerPage = 10
+
+  const { user } = useAuth()
+  const currentOperator = user?.username || ''
 
   const { language } = useLanguage()
 
   const fetchAlerts = async () => {
     try {
-      const res = await fetch('https://jsonplaceholder.typicode.com/posts')
+      const res = await fetch('/api/alerts')
       const data = await res.json()
-      const parsed = data.slice(0, 50).map((item: { title: string }, index: number) => ({
-        id: index + 1,
-        severity: index % 3 === 0 ? 'critical' : index % 3 === 1 ? 'warning' : 'info',
-        message: item.title,
-        timestamp: new Date().toISOString(),
-      }))
-      setAlerts(parsed)
+      setAlerts(data)
       setLastUpdated(new Date())
     } catch (err) {
       console.error('Error al obtener alertas', err)
@@ -47,16 +48,20 @@ export default function AlertPanel() {
   }, [])
 
   const filteredAlerts = useMemo(() => {
-    const filtered = selectedSeverity === 'all'
+    let filtered = selectedSeverity === 'all'
       ? alerts
       : alerts.filter(alert => alert.severity === selectedSeverity)
+
+    if (filterByOperator === 'mine') {
+      filtered = filtered.filter(alert => alert.assignedTo === currentOperator)
+    }
 
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.timestamp).getTime()
       const dateB = new Date(b.timestamp).getTime()
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
     })
-  }, [alerts, selectedSeverity, sortOrder])
+  }, [alerts, selectedSeverity, sortOrder, filterByOperator, currentOperator])
 
   const totalPages = Math.ceil(filteredAlerts.length / alertsPerPage)
 
@@ -93,6 +98,29 @@ export default function AlertPanel() {
             <option value="warning">{labels[language].warning}</option>
             <option value="info">{labels[language].info}</option>
           </select>
+          <select
+            value={filterByOperator}
+            onChange={(e) => setFilterByOperator(e.target.value as 'all' | 'mine')}
+            className="border border-gray-300 rounded px-2 py-1 text-sm"
+          >
+            <option value="all">Todas</option>
+            <option value="mine">Mis alertas</option>
+          </select>
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/alerts/generate', { method: 'POST' })
+                if (res.ok) {
+                  fetchAlerts()
+                }
+              } catch (err) {
+                console.error('Error generando alerta', err)
+              }
+            }}
+            className="px-2 py-1 text-sm border border-gray-300 rounded text-gray-800"
+          >
+            Generar Alerta
+          </button>
           <button
             onClick={fetchAlerts}
             className="px-2 py-1 text-sm border border-gray-300 rounded text-gray-800"
@@ -108,26 +136,30 @@ export default function AlertPanel() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_auto] gap-4 px-2 py-1 font-semibold text-sm text-gray-600 border-b border-gray-300 mb-2">
+        <span>Mensaje</span>
+        <span>Fecha</span>
+        <span>Asignado a</span>
+        <span className="text-right">Acciones</span>
+      </div>
+
       {filteredAlerts.length === 0 ? (
         <p className="text-gray-400">{labels[language].noAlerts}</p>
       ) : (
         <>
           <ul className="space-y-2 mb-4">
             {currentAlerts.map((alert) => (
-              <li
-                onClick={() => setSelectedAlert(alert)}
-                className={`cursor-pointer p-3 rounded border-l-4 text-white ${
-                  alert.severity === 'critical'
-                    ? 'bg-red-700 border-red-400'
-                    : alert.severity === 'warning'
-                    ? 'bg-yellow-700 border-yellow-400'
-                    : 'bg-blue-700 border-blue-400'
-                }`}
+              <AlertCard
                 key={alert.id}
-              >
-                <p className="font-medium">{alert.message}</p>
-                <p className="text-sm text-gray-300">{alert.timestamp}</p>
-              </li>
+                alert={alert}
+                currentOperator={currentOperator}
+                onSelect={setSelectedAlert}
+                onAssign={(updatedAlert) =>
+                  setAlerts(prev =>
+                    prev.map(a => (a.id === updatedAlert.id ? updatedAlert : a))
+                  )
+                }
+              />
             ))}
           </ul>
           <div className="flex justify-between items-center">
