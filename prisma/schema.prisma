@@ -26,3 +26,9 @@ model Alert {
   timestamp   DateTime @default(now())
   assignedTo  String?
 }
+
+model AclEntry {
+  id     String @id @default(cuid())
+  type   String
+  subnet String
+}

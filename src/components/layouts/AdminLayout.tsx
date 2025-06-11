@@ -38,6 +38,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <nav className="flex flex-col space-y-2">
           <Link href="/dashboard" className="hover:underline">{labels[language].dashboard}</Link>
           <Link href="/config" className="hover:underline">{labels[language].config}</Link>
+          <Link href="/security_module" className="hover:underline">{labels[language].security}</Link>
           <Link href="/alerts" className="hover:underline">{labels[language].alerts}</Link>
         </nav>
       </aside>
