@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { CheckCircle, XCircle, FileDiff } from 'lucide-react'
 import AdminLayout from '@/components/layouts/AdminLayout'
+import DiffViewer from '@/components/DiffViewer'
 
 type SubnetEntry = {
   id: string
@@ -16,6 +18,9 @@ export default function SecurityModulePage() {
   const [selectedSnmp, setSelectedSnmp] = useState<string[]>([])
   const [selectedSsh, setSelectedSsh] = useState<string[]>([])
   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
+  const [deviceStatus, setDeviceStatus] = useState<Record<string, 'ok' | 'error' | null>>({})
+  const [showModal, setShowModal] = useState(false)
+  const [diffData, setDiffData] = useState<{ original: string; updated: string }>({ original: '', updated: '' })
 
   useEffect(() => {
     fetch('/api/security/acls')
@@ -109,13 +114,18 @@ export default function SecurityModulePage() {
     </div>
   )
 
-  // Funciones para manejar Compliance y Enforcement
   const handleCompliance = async () => {
     await fetch('/api/security/compliance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ devices: selectedDevices }),
     })
+
+    const updated: Record<string, 'ok' | 'error'> = {}
+    selectedDevices.forEach(device => {
+      updated[device] = Math.random() > 0.5 ? 'ok' : 'error'
+    })
+    setDeviceStatus(prev => ({ ...prev, ...updated }))
     alert('Compliance solicitado para los dispositivos seleccionados')
   }
 
@@ -126,6 +136,36 @@ export default function SecurityModulePage() {
       body: JSON.stringify({ devices: selectedDevices }),
     })
     alert('Enforcement solicitado para los dispositivos seleccionados')
+  }
+
+  const showDiff = (device: string) => {
+    const current = `
+ip access-list standard MGMT-ACL
+   10 permit 10.200.101.0/24
+   15 permit 10.4.39.16/28
+   20 permit 10.255.1.0/24
+   30 permit 10.250.1.0/24
+   40 permit 10.250.80.0/24
+   50 permit 10.255.80.0/24
+   60 permit 10.255.14.0/24
+   70 permit 10.254.0.0/22
+   71 permit host 10.250.99.2
+   72 permit host 10.255.0.101
+   80 deny any
+    `.trim()
+
+    const expected = `
+ip access-list standard MGMT-ACL
+   10 permit 10.200.101.0/24
+   15 permit 10.4.39.16/28
+   20 permit 10.254.0.0/22
+   30 permit host 10.250.99.2
+   40 permit host 10.255.0.101
+   80 deny any
+    `.trim()
+
+    setDiffData({ original: current, updated: expected })
+    setShowModal(true)
   }
 
   return (
@@ -162,17 +202,30 @@ export default function SecurityModulePage() {
           <h3 className="text-xl font-semibold mb-2">Dispositivos</h3>
           <ul className="border rounded divide-y mb-4">
             {['device1', 'device2', 'device3'].map((device) => (
-              <li key={device} className="flex items-center gap-2 px-3 py-2">
-                <input
-                  type="checkbox"
-                  checked={selectedDevices.includes(device)}
-                  onChange={() =>
-                    setSelectedDevices(selectedDevices.includes(device)
-                      ? selectedDevices.filter(d => d !== device)
-                      : [...selectedDevices, device])
-                  }
-                />
-                <span>{device}</span>
+              <li key={device} className="flex items-center justify-between px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedDevices.includes(device)}
+                    onChange={() =>
+                      setSelectedDevices(selectedDevices.includes(device)
+                        ? selectedDevices.filter(d => d !== device)
+                        : [...selectedDevices, device])
+                    }
+                  />
+                  <span>{device}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {deviceStatus[device] === 'ok' && (
+                    <CheckCircle className="text-green-600" size={20} />
+                  )}
+                  {deviceStatus[device] === 'error' && (
+                    <XCircle className="text-red-600" size={20} />
+                  )}
+                  <button onClick={() => showDiff(device)} title="Ver diferencias">
+                    <FileDiff className="text-gray-600 hover:text-gray-800" size={20} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -192,6 +245,22 @@ export default function SecurityModulePage() {
           </div>
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-4xl w-full">
+            <h4 className="text-lg font-semibold mb-4">Comparación de configuración</h4>
+            <DiffViewer original={diffData.original} updated={diffData.updated} />
+            <div className="mt-6 text-right">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   )
 }
