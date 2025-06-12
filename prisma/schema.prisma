@@ -31,4 +31,5 @@ model AclEntry {
   id     String @id @default(cuid())
   type   String
   subnet String
+  name   String
 }
