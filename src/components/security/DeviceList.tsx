@@ -2,6 +2,8 @@
 'use client'
 
 import React from 'react'
+import { useLanguage } from '@/context/LanguageContext'
+import { labels } from '@/locales'
 import { CheckCircle, XCircle, FileDiff } from 'lucide-react'
 
 interface DeviceListProps {
@@ -13,9 +15,10 @@ interface DeviceListProps {
 }
 
 export function DeviceList({ devices, selected, status, onToggle, onShowDiff }: DeviceListProps) {
+  const { language } = useLanguage()
   return (
     <div className="bg-white p-4 rounded shadow">
-      <h3 className="text-xl font-semibold mb-2">Dispositivos</h3>
+      <h3 className="text-xl font-semibold mb-2">{labels[language].devices}</h3>
       <ul className="border rounded divide-y mb-4">
         {devices.map(device => (
           <li key={device} className="flex items-center justify-between px-3 py-2">
@@ -30,7 +33,7 @@ export function DeviceList({ devices, selected, status, onToggle, onShowDiff }: 
             <div className="flex items-center gap-3">
               {status[device] === 'ok' && <CheckCircle className="text-green-600" size={20} aria-label="OK" />}
               {status[device] === 'error' && <XCircle className="text-red-600" size={20} aria-label="Error" />}
-              <button onClick={() => onShowDiff(device)} title="Ver diferencias">
+              <button onClick={() => onShowDiff(device)} title={labels[language].viewDiff}>
                 <FileDiff className="text-gray-600 hover:text-gray-800" size={20} aria-label="Diff" />
               </button>
             </div>
@@ -40,3 +43,4 @@ export function DeviceList({ devices, selected, status, onToggle, onShowDiff }: 
     </div>
   )
 }
+

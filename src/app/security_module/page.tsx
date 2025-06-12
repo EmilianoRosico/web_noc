@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import AdminLayout from '@/components/layouts/AdminLayout'
+import { useLanguage } from '@/context/LanguageContext'
+import { labels } from '@/locales'
 import { AclSection } from '@/components/security/AclSection'
 import { DeviceList } from '@/components/security/DeviceList'
 import { DiffModal } from '@/components/security/DiffModal'
@@ -23,6 +25,7 @@ export default function SecurityModulePage() {
   ])
   const [showModal, setShowModal] = useState(false)
   const [diffData, setDiffData] = useState<DiffData>({ original: '', updated: '' })
+  const { language } = useLanguage()
 
   // Simula compliance y actualiza estado
   const handleCompliance = async () => {
@@ -68,10 +71,10 @@ export default function SecurityModulePage() {
   return (
     <AdminLayout>
       <div className="max-w-3xl mx-auto p-6 text-gray-800">
-        <h2 className="text-2xl font-bold mb-6">Módulo de Seguridad</h2>
+        <h2 className="text-2xl font-bold mb-6">{labels[language].security}</h2>
 
         <AclSection
-          label="ACL ALLOWED_SNMP"
+          label={labels[language].aclAllowedSnmp}
           entries={snmp}
           newValue={newSnmp}
           onChange={setNewSnmp}
@@ -86,7 +89,7 @@ export default function SecurityModulePage() {
         />
 
         <AclSection
-          label="ACL ALLOWED_SSH"
+          label={labels[language].aclAllowedSsh}
           entries={ssh}
           newValue={newSsh}
           onChange={setNewSsh}
@@ -113,13 +116,13 @@ export default function SecurityModulePage() {
             onClick={handleCompliance}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            Compliance
+            {labels[language].compliance}
           </button>
           <button
             onClick={handleEnforcement}
             className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
           >
-            Enforcement
+            {labels[language].enforcement}
           </button>
         </div>
 

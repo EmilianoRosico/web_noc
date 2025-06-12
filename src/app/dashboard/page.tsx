@@ -46,15 +46,15 @@ export default function DashboardPage() {
         <h2 className="text-2xl font-bold">{labels[language].dashboard}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gray p-4 rounded shadow">
-            <h3 className="text-lg font-semibold">Total de alertas</h3>
+            <h3 className="text-lg font-semibold">{labels[language].totalAlerts}</h3>
             <p className="text-3xl font-bold text-blue-700">{total}</p>
           </div>
           <div className="bg-gray p-4 rounded shadow">
-            <h3 className="text-lg font-semibold">Alertas sin asignar</h3>
+            <h3 className="text-lg font-semibold">{labels[language].unassignedAlerts}</h3>
             <p className="text-3xl font-bold text-red-700">{unassigned}</p>
           </div>
           <div className="bg-gray p-4 rounded shadow">
-            <h3 className="text-lg font-semibold">Alertas por operador</h3>
+            <h3 className="text-lg font-semibold">{labels[language].alertsByOperator}</h3>
             <ul className="mt-2 text-sm text-white-700 space-y-1">
               {Object.entries(assignedPerUser).map(([user, count]) => (
                 <li key={user}>
@@ -68,3 +68,4 @@ export default function DashboardPage() {
     </AdminLayout>
   )
 }
+

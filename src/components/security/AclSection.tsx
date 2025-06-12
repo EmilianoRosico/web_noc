@@ -2,6 +2,8 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useLanguage } from '@/context/LanguageContext'
+import { labels } from '@/locales'
 
 type SubnetEntry = { id: string; subnet: string; name?: string }
 
@@ -28,6 +30,7 @@ export function AclSection({
 }: AclSectionProps) {
   const [entryName, setEntryName] = useState('')
   const [error, setError] = useState('')
+  const { language } = useLanguage()
 
   const validateCidr = (cidr: string) => {
     const regex = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/(\d|[12]\d|3[0-2]))?$/
@@ -39,15 +42,15 @@ export function AclSection({
     const cidr = newValue.trim()
     const name = entryName.trim()
     if (!validateCidr(cidr)) {
-      setError('Subnet no válida en formato CIDR')
+      setError(labels[language].invalidSubnet)
       return
     }
     if (!name) {
-      setError('Debe ingresar un nombre para la subred')
+      setError(labels[language].nameRequired)
       return
     }
     if (entries.some(e => e.subnet === cidr)) {
-      setError('La subred ya existe')
+      setError(labels[language].subnetExists)
       return
     }
     onAdd(cidr, name)
@@ -61,7 +64,7 @@ export function AclSection({
       {/* Form inputs */}
       <div className="flex flex-col sm:flex-row sm:items-end gap-3 mb-4">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Subnet/Host</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{labels[language].subnetHost}</label>
           <input
             type="text"
             value={newValue}
@@ -71,7 +74,7 @@ export function AclSection({
           />
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{labels[language].name}</label>
           <input
             type="text"
             value={entryName}
@@ -85,7 +88,7 @@ export function AclSection({
             onClick={handleAdd}
             className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
-            Agregar
+            {labels[language].add}
           </button>
         </div>
       </div>
@@ -127,7 +130,7 @@ export function AclSection({
             onClick={onDelete}
             className="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md shadow-sm text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
-            Eliminar seleccionados
+            {labels[language].deleteSelected}
           </button>
         </div>
       )}

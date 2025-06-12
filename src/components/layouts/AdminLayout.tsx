@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
       <aside className="w-64 bg-gray-800 p-4">
-        <h2 className="text-xl font-bold mb-4">Panel NOC</h2>
+        <h2 className="text-xl font-bold mb-4">{labels[language].nocPanel ?? 'Panel NOC'}</h2>
         <nav className="flex flex-col space-y-2">
           <Link href="/dashboard" className="hover:underline">{labels[language].dashboard}</Link>
           <Link href="/config" className="hover:underline">{labels[language].config}</Link>
@@ -76,3 +76,4 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     </div>
   )
 }
+

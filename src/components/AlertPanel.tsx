@@ -103,8 +103,8 @@ export default function AlertPanel() {
             onChange={(e) => setFilterByOperator(e.target.value as 'all' | 'mine')}
             className="border border-gray-300 rounded px-2 py-1 text-sm"
           >
-            <option value="all">Todas</option>
-            <option value="mine">Mis alertas</option>
+            <option value="all">{labels[language].all}</option>
+            <option value="mine">{labels[language].myAlerts}</option>
           </select>
           <button
             onClick={async () => {
@@ -119,7 +119,7 @@ export default function AlertPanel() {
             }}
             className="px-2 py-1 text-sm border border-gray-300 rounded text-gray-800"
           >
-            Generar Alerta
+            {labels[language].generateAlert}
           </button>
           <button
             onClick={fetchAlerts}
@@ -137,10 +137,10 @@ export default function AlertPanel() {
       </div>
 
       <div className="grid grid-cols-1 grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_auto] gap-4 px-2 py-1 font-semibold text-sm text-gray-600 border-b border-gray-300 mb-2">
-        <span>Mensaje</span>
-        <span>Fecha</span>
-        <span>Asignado a</span>
-        <span className="text-right">Acciones</span>
+        <span>{labels[language].message}</span>
+        <span>{labels[language].date}</span>
+        <span>{labels[language].assignedTo}</span>
+        <span className="text-right">{labels[language].actions}</span>
       </div>
 
       {filteredAlerts.length === 0 ? (
@@ -191,3 +191,4 @@ export default function AlertPanel() {
     </div>
   )
 }
+

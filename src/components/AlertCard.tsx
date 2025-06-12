@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react'
+import { useLanguage } from '@/context/LanguageContext'
+import { labels } from '@/locales'
 
 interface Alert {
   id: number
@@ -23,6 +25,7 @@ export default function AlertCard({
   onSelect,
   onAssign,
 }: AlertCardProps) {
+  const { language } = useLanguage()
   const handleAssign = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
@@ -59,7 +62,7 @@ export default function AlertCard({
       </div>
       <div>
         <p className="text-sm italic text-gray-300">
-          {alert.assignedTo || 'Sin asignar'}
+          {alert.assignedTo || labels[language].unassigned}
         </p>
       </div>
       <div className="text-right">
@@ -68,7 +71,7 @@ export default function AlertCard({
             onClick={handleAssign}
             className="text-xs px-3 py-1 bg-white text-gray-800 rounded shadow"
           >
-            Tomar
+            {labels[language].take}
           </button>
         ) : (
           <button
@@ -90,10 +93,11 @@ export default function AlertCard({
             }}
             className="text-xs px-3 py-1 bg-white text-gray-800 rounded shadow"
           >
-            Liberar
+            {labels[language].release}
           </button>
         )}
       </div>
     </li>
   )
 }
+
